@@ -1,0 +1,118 @@
+name: Package_update
+on:
+  workflow_dispatch:
+    inputs:
+      Version:
+        description: 'Numero de Version ?'
+        required: False
+        default: 'x.x.x'
+
+jobs:
+  Package_update:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: branch master verification
+        if: ${{ github.ref == 'refs/heads/master' }}
+        run: |
+          echo The workflow cannot be started from the master branch
+          exit 1
+
+      - name: branch main verification
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          echo The workflow cannot be started from the main branch
+          exit 1
+
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Repository
+        run: python ./.github/workflows/Extracteur_Repository.py #This python script extract the name of the repository and set it as an environmental variable : ${{steps.repository.outputs.rep}}
+        id: repository
+
+      - name: Logs creation
+        run: git --no-pager log --name-status origin/master..origin/${GITHUB_REF#refs/heads/} --> log.txt #This line create a .txt file with all the commit made on the branch write inside, ${GITHUB_REF#refs/heads/} give the name of the branch where this workflow was launch
+
+      - name: extraction Json
+        env:
+          repository: ${{steps.repository.outputs.rep}}
+        run: |
+          git checkout master
+          python ./.github/workflows/Extracteur_Json.py #This python script extract the version number of the package.json file and set it as an environmental variable : ${{steps.ex_json.outputs.ver}}
+        id: ex_json
+
+      - name: incrementation
+        env:
+          ver: ${{steps.ex_json.outputs.ver}}
+        run: python ./.github/workflows/ver_incrementation.py #This python script set a new version number as an environmental variable with the third digit increase by 1 : ${{steps.in.outputs.VER}}
+        id: in
+
+      - name: Squash merge
+        run: |
+          git config --global user.name 'Manny Realcast'
+          git config --global user.email 'manny@realcast.io'
+          git merge --squash ${GITHUB_REF#refs/heads/}
+
+      - name: update log if input
+        if: ${{github.event.inputs.Version != 'x.x.x'}}
+        env:
+          VER: ${{github.event.inputs.Version}}
+          repository: ${{steps.repository.outputs.rep}}
+        run: |
+          python ./.github/workflows/uplog.py #This python script update the CHANGELOG.md file with the commits of the log.txt file if a version number is set by the user
+          git add ./Assets/${{steps.repository.outputs.rep}}/CHANGELOG.md
+
+      - name: update log if no input
+        if: ${{github.event.inputs.Version == 'x.x.x'}}
+        env:
+          VER: ${{steps.in.outputs.VER}}
+          repository: ${{steps.repository.outputs.rep}}
+        run: |
+          python ./.github/workflows/uplog.py #This python script update the CHANGELOG.md file with the commits of the log.txt file if no version number is set by the user
+          git add ./Assets/${{steps.repository.outputs.rep}}/CHANGELOG.md
+
+      - name: Reecriture Json if input
+        if: ${{github.event.inputs.Version != 'x.x.x'}}
+        env:
+          VER: ${{github.event.inputs.Version}}
+          repository: ${{steps.repository.outputs.rep}}
+        run: |
+          python ./.github/workflows/reecriture_json.py #This python script update the package.json file with the commits of the log.txt file if a version number is set by the user
+          git add ./Assets/${{steps.repository.outputs.rep}}/package.json
+
+      - name: Reecriture Json if no input
+        if: ${{github.event.inputs.Version == 'x.x.x'}}
+        env:
+          VER: ${{steps.in.outputs.VER}}
+          repository: ${{steps.repository.outputs.rep}}
+        run: |
+          python ./.github/workflows/reecriture_json.py #This python script update the package.json file with the commits of the log.txt file if no version number is set by the user
+          git add ./Assets/${{steps.repository.outputs.rep}}/package.json
+
+      - name: Commit
+        run: |
+          git commit -m "Squash merge of new feature : ${GITHUB_REF#refs/heads/}"
+          git stash
+          git push
+
+      - name: subtree split if input
+        if: ${{github.event.inputs.Version != 'x.x.x'}}
+        run: |
+          git subtree split --prefix="Assets/${{steps.repository.outputs.rep}}" -b upm
+          git checkout upm
+          git push -u origin upm
+          git tag -a ${{github.event.inputs.Version}} -m "new version!"
+          git push --tags
+          git checkout master
+
+      - name: subtree split if no input
+        if: ${{github.event.inputs.Version == 'x.x.x'}}
+        run: |
+          git subtree split --prefix="Assets/${{steps.repository.outputs.rep}}" -b upm
+          git checkout upm
+          git push -u origin upm
+          git tag -a ${{steps.in.outputs.VER}} -m "new version!"
+          git push --tags
+          git checkout master
