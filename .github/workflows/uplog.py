@@ -22,7 +22,7 @@ if 'VER' in os.environ:
     repository = os.environ['repository']
     date = dt.datetime.now()
     Date = date.strftime("%d-%B-%Y")
-    with open('Assets/'+repository+'/CHANGELOG.md', 'r') as read_obj, open('Assets/'+repository+'/dummy_file.md', 'w') as write_obj:
+    with open('CHANGELOG.md', 'r') as read_obj, open('dummy_file.md', 'w') as write_obj:
         for line in read_obj:
             if '[Semantic Versioning]' in line :
                 write_obj.write(line)
@@ -34,8 +34,8 @@ if 'VER' in os.environ:
                 write_obj.write(commit)
             else :
                 write_obj.write(line)
-    os.remove('Assets/'+repository+'/CHANGELOG.md')
-    os.rename('Assets/'+repository+'/dummy_file.md', 'Assets/'+repository+'/CHANGELOG.md')
+    os.remove('CHANGELOG.md')
+    os.rename('dummy_file.md', 'CHANGELOG.md')
 
 # This script updates the file CHANGELOG.md by adding all the commits made on
 # the branch use to start this workflow

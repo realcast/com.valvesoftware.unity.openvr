@@ -62,7 +62,7 @@ jobs:
           repository: ${{steps.repository.outputs.rep}}
         run: |
           python ./.github/workflows/uplog.py #This python script update the CHANGELOG.md file with the commits of the log.txt file if a version number is set by the user
-          git add ./Assets/${{steps.repository.outputs.rep}}/CHANGELOG.md
+          git add ./CHANGELOG.md
 
       - name: update log if no input
         if: ${{github.event.inputs.Version == 'x.x.x'}}
@@ -71,7 +71,7 @@ jobs:
           repository: ${{steps.repository.outputs.rep}}
         run: |
           python ./.github/workflows/uplog.py #This python script update the CHANGELOG.md file with the commits of the log.txt file if no version number is set by the user
-          git add ./Assets/${{steps.repository.outputs.rep}}/CHANGELOG.md
+          git add ./CHANGELOG.md
 
       - name: Reecriture Json if input
         if: ${{github.event.inputs.Version != 'x.x.x'}}
@@ -80,7 +80,7 @@ jobs:
           repository: ${{steps.repository.outputs.rep}}
         run: |
           python ./.github/workflows/reecriture_json.py #This python script update the package.json file with the commits of the log.txt file if a version number is set by the user
-          git add ./Assets/${{steps.repository.outputs.rep}}/package.json
+          git add ./package.json
 
       - name: Reecriture Json if no input
         if: ${{github.event.inputs.Version == 'x.x.x'}}
@@ -89,7 +89,7 @@ jobs:
           repository: ${{steps.repository.outputs.rep}}
         run: |
           python ./.github/workflows/reecriture_json.py #This python script update the package.json file with the commits of the log.txt file if no version number is set by the user
-          git add ./Assets/${{steps.repository.outputs.rep}}/package.json
+          git add ./package.json
 
       - name: Commit
         run: |
@@ -100,7 +100,7 @@ jobs:
       - name: subtree split if input
         if: ${{github.event.inputs.Version != 'x.x.x'}}
         run: |
-          git subtree split --prefix="Assets/${{steps.repository.outputs.rep}}" -b upm
+          git subtree split --prefix="./" -b upm
           git checkout upm
           git push -u origin upm
           git tag -a ${{github.event.inputs.Version}} -m "new version!"
@@ -110,7 +110,7 @@ jobs:
       - name: subtree split if no input
         if: ${{github.event.inputs.Version == 'x.x.x'}}
         run: |
-          git subtree split --prefix="Assets/${{steps.repository.outputs.rep}}" -b upm
+          git subtree split --prefix="./" -b upm
           git checkout upm
           git push -u origin upm
           git tag -a ${{steps.in.outputs.VER}} -m "new version!"
