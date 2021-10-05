@@ -100,7 +100,7 @@ jobs:
       - name: subtree split if input
         if: ${{github.event.inputs.Version != 'x.x.x'}}
         run: |
-          git subtree split --prefix="./" -b upm
+          git subtree split --prefix="package" -b upm
           git checkout upm
           git push -u origin upm
           git tag -a ${{github.event.inputs.Version}} -m "new version!"
@@ -110,7 +110,7 @@ jobs:
       - name: subtree split if no input
         if: ${{github.event.inputs.Version == 'x.x.x'}}
         run: |
-          git subtree split --prefix="./" -b upm
+          git subtree split --prefix="package" -b upm
           git checkout upm
           git push -u origin upm
           git tag -a ${{steps.in.outputs.VER}} -m "new version!"
