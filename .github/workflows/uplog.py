@@ -19,7 +19,8 @@ Log.close()
 os.remove('log.txt')
 if 'VER' in os.environ:
     ver = os.environ['VER']
-    repository = os.environ['repository']
+#    repository = os.environ['repository']
+    print("titi")
     date = dt.datetime.now()
     Date = date.strftime("%d-%B-%Y")
     with open('package/CHANGELOG.md', 'r') as read_obj, open('package/dummy_file.md', 'w') as write_obj:
