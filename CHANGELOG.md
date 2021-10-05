@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -    Add readme to depot
 
 ## [1.1.4] - 05-October-2021 : 
+-    Add readme to depot
+
+## [1.1.4] - 05-October-2021 : 
 
 ## [1.1.5] - 05-October-2021 : 
 -    Downgrade package version to let magic increment it :)
