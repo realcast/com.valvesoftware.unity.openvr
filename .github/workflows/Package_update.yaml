@@ -62,7 +62,7 @@ jobs:
           repository: ${{steps.repository.outputs.rep}}
         run: |
           python ./.github/workflows/uplog.py #This python script update the CHANGELOG.md file with the commits of the log.txt file if a version number is set by the user
-          git add ./CHANGELOG.md
+          git add ./package/CHANGELOG.md
 
       - name: update log if no input
         if: ${{github.event.inputs.Version == 'x.x.x'}}
@@ -71,7 +71,7 @@ jobs:
           repository: ${{steps.repository.outputs.rep}}
         run: |
           python ./.github/workflows/uplog.py #This python script update the CHANGELOG.md file with the commits of the log.txt file if no version number is set by the user
-          git add ./CHANGELOG.md
+          git add ./package/CHANGELOG.md
 
       - name: Reecriture Json if input
         if: ${{github.event.inputs.Version != 'x.x.x'}}
@@ -80,7 +80,7 @@ jobs:
           repository: ${{steps.repository.outputs.rep}}
         run: |
           python ./.github/workflows/reecriture_json.py #This python script update the package.json file with the commits of the log.txt file if a version number is set by the user
-          git add ./package.json
+          git add ./package/package.json
 
       - name: Reecriture Json if no input
         if: ${{github.event.inputs.Version == 'x.x.x'}}
@@ -89,7 +89,7 @@ jobs:
           repository: ${{steps.repository.outputs.rep}}
         run: |
           python ./.github/workflows/reecriture_json.py #This python script update the package.json file with the commits of the log.txt file if no version number is set by the user
-          git add ./package.json
+          git add ./package/package.json
 
       - name: Commit
         run: |
